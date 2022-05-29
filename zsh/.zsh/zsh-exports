@@ -1,0 +1,17 @@
+#!/bin/sh
+# HISTFILE="$XDG_DATA_HOME"/zsh/history
+HISTSIZE=1000000
+SAVEHIST=1000000
+export PATH="$HOME/.local/bin":$PATH
+export PATH="$PATH:$(yarn global bin)" 
+export MANPAGER='nvim +Man!'
+export MANWIDTH=999
+export PATH=$HOME/.cargo/bin:$PATH
+export PATH="$PATH:./node_modules/.bin"
+export PATH="$HOME/.cabal/bin:$PATH"
+# asdf cli
+source $HOME/dotfiles/zsh/plugins/asdf/asdf.sh
+# Icons
+# source ~/.local/share/fonts/i_linux.sh
+# spotify - spicetify
+export PATH=$PATH:/home/vicenzo/.spicetify

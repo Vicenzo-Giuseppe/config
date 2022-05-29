@@ -1,0 +1,32 @@
+## Copyright (C) 2020-2021 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+# Font configuration
+font:
+
+  normal:
+    family: "Mononoki Nerd Font"
+    
+    #style: Regular
+  bold:
+    family: "Mononoki Nerd Font"
+    #style: Bold
+  italic:
+    family: "Mononoki Nerd Font"
+    #style: Italic
+  bold_italic:
+    family: "Mononoki Nerd Font"
+    #style: Bold Italic
+
+  # Point size
+  size: 12.7
+
+  # Offset
+  #offset:
+  #  x: 0
+  #  y: 0
+
+  # Glyph offset
+  #glyph_offset:
+  #  x: 0
+  #  y: 0

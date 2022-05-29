@@ -1,0 +1,18 @@
+[submodule "picom/picom-with-animations"]
+	path = picom/picom-with-animations
+  url = https://github.com/pijulius/picom.git
+[submodule "zsh/plugins/asdf"]
+  path = zsh/plugins/asdf
+  url = https://github.com/asdf-vm/asdf.git
+[submodule "zsh/plugins/zsh-autopair"]
+  path = zsh/plugins/zsh-autopair
+  url = https://github.com/hlissner/zsh-autopair.git
+[submodule "zsh/plugins/zsh-autosuggestions"]
+	path = zsh/plugins/zsh-autosuggestions
+  url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "zsh/plugins/zsh-syntax-highlighting"]
+  path = zsh/plugins/zsh-syntax-highlighting
+  url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule "zsh/plugins/zsh-z"]
+  path = zsh/plugins/zsh-z
+  url = https://github.com/agkozak/zsh-z.git
