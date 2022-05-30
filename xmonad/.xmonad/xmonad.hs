@@ -74,7 +74,9 @@ myBrowser = "/usr/bin/firefox"
 mySpotify = "spicetify restore backup apply"
 myWhatsapp = "whatsapp-for-linux"
 myFileManager = "thunar"
-
+myTorrent="transmission-gtk"
+myVM_Manager="vmware"
+myEmail="bluemail"
 ------------------------------------------------------------------------
 -- Colors
 ------------------------------------------------------------------------
@@ -161,7 +163,10 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
         (xK_F3, sinkAll), -- Push all windows back into tiling
         (xK_Tab, nextWS), -- Next WorkSpace
         (xK_comma, windows W.focusDown), -- Move focus <-
-        (xK_period, windows W.focusUp) -- Move focus ->
+        (xK_period, windows W.focusUp), -- Move focus ->
+        (xK_t, spawn myTorrent), --
+        (xK_y, spawn myVM_Manager), --
+        (xK_m, spawn myEmail) --
        ] 
   ++ map
       (first $ (,) (windowsKey .|. shiftMask)) -- WindownKey + ShiftKey + <Key>
@@ -381,9 +386,8 @@ myLayoutHook =
         T.toggleLayouts full $
           mkToggle (NBFULL ?? NOBORDERS ?? MIRROR ?? EOT) myDefaultLayout
   where
-    myDefaultLayout =
-      withBorder myBorderWidth tall
-        ||| grid
+    myDefaultLayout =  grid
+--      withBorder myBorderWidth tall
         ||| noBorders full
         ||| magnify
         ||| mirror
@@ -392,14 +396,14 @@ myLayoutHook =
 ------------------------------------------------------------------------
 -- Tiling Layouts
 ------------------------------------------------------------------------
-tall =
-  renamed [Replace " <fc=#95e6cb><fn=2> \61449 </fn>Tall</fc>"] $
-    smartBorders $
-      windowNavigation $
-        subLayout [] (smartBorders Simplest) $
-          limitWindows 8 $
-            mySpacing 5 $
-              ResizableTall 1 (3 / 100) (1 / 2) []
+--tall =
+-- renamed [Replace " <fc=#95e6cb><fn=2> \61449 </fn>Tall</fc>"] $
+--    smartBorders $
+--      windowNavigation $
+--        subLayout [] (smartBorders Simplest) $
+--          limitWindows 8 $
+--            mySpacing 5 $
+--              ResizableTall 1 (3 / 100) (1 / 2) []
 
 grid =
   renamed [Replace " <fc=#95e6cb><fn=2> \61449 </fn>Grid</fc>"] $

@@ -1,7 +1,7 @@
 Config { font    = "xft:Ubuntu:weight=bold:pixelsize=13:antialias=true:hinting=true,Font Awesome 6 Free Regular:pixelsize=14"
        , additionalFonts = [ "xft:Mononoki Nerd Font:pixelsize=13:antialias=true:hinting=true"
                            , "xft:Font Awesome 6 Free Solid:pixelsize=13"
-                           , "xft:FontAwesome:pixelsize=13"                         -- Weather
+                           , "xft:FontAwesome:pixelsize=10"                         -- Weather
                            , "xft:Font Awesome 6 Free Solid:pixelsize=10"           -- MPD music player
                            , "xft:Font Awesome 6 Free Regular:pixelsize=13"         -- Tiling
                            , "xft:Ubuntu:pixelsize=13:antialias=true:hinting=true"  -- Networks
