@@ -3,6 +3,7 @@
 eval "$(starship init zsh)"
 export STARSHIP_CONFIG=~/config/zsh/.zsh/prompt-starship.toml
 export ZDOTDIR=$HOME/config/zsh/.zsh/
+
 HISTFILE=~/config/zsh/.zsh/.zhistory
 setopt appendhistory
 # some useful options (man zshoptions)

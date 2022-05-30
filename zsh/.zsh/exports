@@ -10,8 +10,7 @@ export PATH=$HOME/.cargo/bin:$PATH
 export PATH="$PATH:./node_modules/.bin"
 export PATH="$HOME/.cabal/bin:$PATH"
 # asdf cli
-source $HOME/dotfiles/zsh/plugins/asdf/asdf.sh
+source $HOME/config/zsh/plugins/asdf/asdf.sh
 # Icons
 # source ~/.local/share/fonts/i_linux.sh
-# spotify - spicetify
-export PATH=$PATH:/home/vicenzo/.spicetify
+
