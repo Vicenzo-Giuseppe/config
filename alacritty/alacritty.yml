@@ -1,6 +1,6 @@
 import:
-  - ~/dotfiles/alacritty/fonts.yml
-  - ~/dotfiles/alacritty/colors.yml
+  - ~/config/alacritty/fonts.yml
+  - ~/config/alacritty/colors.yml
      
 env:
    WINIT_X11_SCALE_FACTOR: '1.0' 

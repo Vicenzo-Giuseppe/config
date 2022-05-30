@@ -5,6 +5,15 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
+# Programs 
+alias 3D='/usr/bin/SplineDesign' # 3D Web Dev Program
+alias torrent='transmission-gtk &!'
+alias google='/usr/bin/google-chrome-stable'
+alias x='et'
+alias pdf='wpspdf'
+alias l='lvim'
+alias icue='ckb-next &!'
+
 # Changing "ls" to "exa" 
 alias ls='exa --color=always --icons --group-directories-first '
 alias ll='exa -al --color=always --icons --group-directories-first' # my preferred listing 
@@ -12,48 +21,34 @@ alias lsa='exa -a --color=always --icons --group-directories-first '  # all file
 alias li='exa -l --color=always --icons --group-directories-first'  # long format 
 alias l.='exa -a | egrep "^\."'
 
-# Confirm before Overwriting 
+#  General
 alias cp='cp -i'
 alias mv='mv -i'
-#alias rm='trash-rm -i'
 alias rmf='rm -i -rf'
-
-# Git 
-alias m='git checkout master'
-alias s='git checkout stable'
+alias mk='mkdir'
+alias ctemp='rmf ~/.temp/ && mkdir ~/.temp' # Clear .temp file
+alias b='yarn ' # use Yarn to utilize blitz
+alias cpust='stress --cpu 16 --timeout 4' # Stress CPU To Test Temperatures
+alias unlock='sudo rm /var/lib/pacman/db.lck'    # remove pacman lock
+#alias rm='trash-rm -i'
+alias disk='ncdu' # File disk analyzer 
+alias pkgs='pacman -Qqe | grep -v "$(pacman -Qqm)" > ~/.temp/pacman.lst && lvim ~/.temp/pacman.lst' # Generate Package list in $HOME/.temp/
 
 # Zsh
 alias zshrc="l $ZDOTDIR/.zshrc"
 alias zc="l $ZDOTDIR"
-alias zk="l $ZDOTDIR/zsh-keybinds" 
-alias za="l $ZDOTDIR/zsh-aliases"
-alias zp="l $ZDOTDIR/zsh-prompt-starship.toml"
-alias zu="find "$ZDOTDIR/plugins" -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull -q"
+alias zk="l $ZDOTDIR/keybinds" 
+alias za="l $ZDOTDIR/aliases"
+alias zp="l $ZDOTDIR/prompt-starship.toml"
+alias zupdt="find "$ZDOTDIR/plugins" -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull -q"
 
-# others
-alias 3D='/usr/bin/SplineDesign'
-alias spot='ncspot'
-#alias spotify='spicetify apply &! exit'
-alias b='yarn '
-alias c='clear' 
-alias l='lvim'
-alias google='/usr/bin/google-chrome-stable'
-alias mk='mkdir'
-alias temp='mkdir temp | cd temp '
-alias unlock='sudo rm /var/lib/pacman/db.lck'    # remove pacman lock
-alias x='et'
-alias pdf='wpspdf'
-alias cpv='time rsync -ah --info=progress2'
-alias icue='ckb-next &!'
-# File disk analyzer - ncdu
-alias disk='ncdu'
-alias torrent='transmission-gtk &!'
-# Stress CPU To Test Temperatures
-alias cpust='stress --cpu 16 --timeout 4'
 # copy to dotfiles
-alias updt='cp ~/.xmobar.hs ~/dotfiles/xmobar/.xmobar.hs'
 alias xmd='l ~/.xmonad/xmonad.hs'
 alias xmb='l ~/.xmobar.hs'
-alias pkgs='pacman -Qqe | grep -v "$(pacman -Qqm)" > ~/.temp/pacman.lst && lvim ~/.temp/pacman.lst'
-alias ctemp='rmf ~/.temp/ && mkdir ~/.temp'
-alias pcm='killall picom && sleep 0.1 && picom -b --animations --animation-window-mass 0.5 --animation-for-open-window zoom --animation-stiffness 350 --config $HOME/.picom.conf'
+
+# others
+alias c='clear' 
+alias cpv='time rsync -ah --info=progress2'
+
+
+
