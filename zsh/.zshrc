@@ -1,9 +1,7 @@
 #!/bin/sh
 ## StarShip Prompt
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/config/zsh/.zsh/zsh-prompt-starship.toml
-##
-
+export STARSHIP_CONFIG=~/config/zsh/.zsh/prompt-starship.toml
 export ZDOTDIR=$HOME/config/zsh/.zsh/
 HISTFILE=~/config/zsh/.zsh/.zhistory
 setopt appendhistory
@@ -31,13 +29,13 @@ zle -N down-line-or-beginning-search
 autoload -Uz colors && colors
 
 # Useful Functions
-source "$ZDOTDIR/zsh-functions"
+source "$ZDOTDIR/functions"
 
 # Normal files to source
-zsh_add_file "zsh-exports"
-zsh_add_file "zsh-vim-mode"
-zsh_add_file "zsh-aliases"
-zsh_add_file "zsh-keybinds"
+zsh_add_file "exports"
+zsh_add_file "vim-mode"
+zsh_add_file "aliases"
+zsh_add_file "keybinds"
 # Plugins
 zsh_add_plugin "zsh-users/zsh-autosuggestions"
 zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
