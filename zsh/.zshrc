@@ -33,16 +33,16 @@ autoload -Uz colors && colors
 source "$ZDOTDIR/functions"
 
 # Normal files to source
-zsh_add_file "exports"
-zsh_add_file "vim-mode"
-zsh_add_file "aliases"
-zsh_add_file "keybinds"
+add_file "exports"
+add_file "vim-mode"
+add_file "aliases"
+add_file "keybinds"
 # Plugins
-zsh_add_plugin "zsh-users/zsh-autosuggestions"
-zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
-zsh_add_plugin "hlissner/zsh-autopair"
-zsh_add_plugin "agkozak/zsh-z"
-zsh_add_plugin "asdf-vm/asdf"
+add_plugin "zsh-users/zsh-autosuggestions"
+add_plugin "zsh-users/zsh-syntax-highlighting"
+add_plugin "hlissner/zsh-autopair"
+add_plugin "agkozak/zsh-z"
+add_plugin "asdf-vm/asdf"
 
 
 # Edit line in vim with ctrl-e:
