@@ -49,6 +49,9 @@ alias xmb='l ~/.xmobar.hs'
 # others
 alias c='clear' 
 alias cpv='time rsync -ah --info=progress2'
-
+alias pk='killall picom'
+alias p='picom -b '
+alias ph='picom -h | grep animation'
+alias ph2='cat ~/.h/.ph'
 
 

@@ -2,9 +2,9 @@
  _\///\\\___/\\\/__\/\\\\\\________/\\\\\\___________________________________________________\/\\\__
   ___\///\\\\\\/____\/\\\//\\\____/\\\//\\\___________________________________________________\/\\\__
    _____\//\\\\______\/\\\\///\\\/\\\/_\/\\\_____/\\\\\_____/\\/\\\\\\____/\\\\\\\\\___________\/\\\__
-    ______\/\\\\______\/\\\__\///\\\/___\/\\\___/\\\///\\\__\/\\\////\\\__\////////\\\_____/\\\\\\\\\__
+    ______\/\\\\______\/\\\__\///\\\/___\/\\\___/\\\///\\\__\/\\\////\\\__\////////\\\_____/\\\\\\\\\
      ______/\\\\\\_____\/\\\____\///_____\/\\\__/\\\__\//\\\_\/\\\__\//\\\___/\\\\\\\\\\___/\\\////\\\__
-      ____/\\\////\\\___\/\\\_____________\/\\\_\//\\\__/\\\__\/\\\___\/\\\__/\\\/////\\\__\/\\\__\/\\\__
+      ____/\\\////\\\___\/\\\_____________\/\\\_\//\\\__/\\\__\/\\\___\/\\\__/\\\/////\\\__\/\\\__\/\\\
        __/\\\/___\///\\\_\/\\\_____________\/\\\__\///\\\\\/___\/\\\___\/\\\_\//\\\\\\\\/\\_\//\\\\\\\/\\_
         _\///_______\///__\///______________\///_____\/////_____\///____\///___\////////\//___\///////\//__-}
 
@@ -19,7 +19,7 @@ import System.Exit
 import System.IO (hPutStrLn)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
-import XMonad.Actions.CycleWS
+import XMonad.Actions.CycleWS( nextWS, WSType(WSIs,EmptyWS,AnyWS), moveTo, shiftTo)
 import XMonad.Actions.MouseResize
 import qualified XMonad.Actions.Search as S
 import qualified XMonad.Actions.Submap as SM
@@ -62,16 +62,21 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
-
+import qualified XMonad.Prompt.Workspace as PWork
+import XMonad.Actions.DynamicWorkspaces
+import XMonad.Prompt.DirExec
+import XMonad.Actions.MouseGestures
+import XMonad.Util.Run(runInTerm)
 ------------------------------------------------------------------------
 -- Preferences
 ------------------------------------------------------------------------
 windowsKey = mod4Mask 
 myBorderWidth = 4 
-myFont = "xft:Hack:"
-myTerminal = "alacritty"
+myFont = "xft:mononoki Nerd Font:"
+myTerminal = "alacritty "
+runTerminal = myTerminal ++ " --hold -e "
 myBrowser = "/usr/bin/firefox"
-mySpotify = "spicetify restore backup apply"
+mySpotify = ""
 myWhatsapp = "whatsapp-for-linux"
 myFileManager = "thunar"
 myTorrent="transmission-gtk"
@@ -80,34 +85,29 @@ myEmail="bluemail"
 ------------------------------------------------------------------------
 -- Colors
 ------------------------------------------------------------------------
---XMONAD
 myXMonadBorderColor = "#E8A2AF"
 myXMonadFocusColor = "#643FFF"
---XMOBAR
 myXMobarCurrentWSColor = "#643FFF"
 myXMobarActiveWSColor = "#F28FAD"
 myXMobarEmptyWSColor = "#00ffd0"
 myXMobarWindowNameColor = "#F28FAD"
---XPromptBaseConfig
-myXPbgColor = "#643FFF" --"#292d3e"
-myXPfgColor = "#E8A2AF" --"#d0d0d0"
-myXPbgHLight = "#FFFFFF" --"#c792ea"
-myXPfgHLight = "#89DCEB" --"#000000"
-myXPborderColor = "#535974"
-
+myXPromptbgColor = "#643FFF" 
+myXPromptfgColor = "#E8A2AF" 
+myXPromptbgHLight = "#FFFFFF" 
+myXPromptfgHLight = "#89DCEB" 
+myXPromptborderColor = "#535974"
 ------------------------------------------------------------------------
 -- Startup Hooks
 ------------------------------------------------------------------------
 myStartupHook = do
-  spawnOnce "$HOME/.autostart.sh"
+  spawnOnce "$HOME/.sh/.autostart.sh"
   setWMName "LG3D"
-
 ------------------------------------------------------------------------
 -- Main Function
 ------------------------------------------------------------------------
 main :: IO ()
 main = do
-  xmobar <- spawnPipe "/usr/bin/xmobar ~/.xmobar.hs"
+  xmobar <- spawnPipe "/usr/bin/xmobar ~/.sh/.xmobar.hs"
   xmonad $
     ewmh
       def
@@ -117,14 +117,12 @@ main = do
               namedScratchpadFilterOutWorkspacePP $
                 xmobarPP
                   { ppOutput = hPutStrLn xmobar,
-                    ppCurrent = xmobarColor myXMobarCurrentWSColor "" . \s -> "<fn=2>\61832</fn>", --" <fn=2>\61713</fn>",
+                    ppCurrent = xmobarColor myXMobarCurrentWSColor "" . \s -> "<fn=2>\61832</fn>", 
                     ppHidden = xmobarColor myXMobarActiveWSColor "" . \s -> " <fn=10>\61713</fn>",
                     ppHiddenNoWindows = xmobarColor myXMobarEmptyWSColor "",
                     ppTitle = xmobarColor myXMobarWindowNameColor "" . shorten 85,
-                    ppSep = "<fc=#212733>  <fn=1> </fn> </fc>"
-                    --ppVisible = xmobarColor "#FFFFFF" "",
-                    --ppOrder = \(ws : l : _ : _) -> [ws, l]
-                  },
+                    ppSep = "<fc=#212733>  <fn=1> </fn> </fc>" 
+                    },
           modMask = windowsKey,
           normalBorderColor = myXMonadBorderColor,
           focusedBorderColor = myXMonadFocusColor,
@@ -137,7 +135,6 @@ main = do
           startupHook = myStartupHook,
           handleEventHook = myHandleEventHook
         }
-
 ------------------------------------------------------------------------
 -- KeyBindings
 ------------------------------------------------------------------------
@@ -146,40 +143,44 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
   M.fromList $
     map
       (first $ (,) windowsKey) -- WindownKey + <Key>
-       [ -- 
-        (xK_c, spawn "xmonad --recompile && xmonad --restart"), -- Recompile & Restarts xmonad
-        (xK_Delete, io exitSuccess), -- Quits xmonad
-        (xK_x, spawn "archlinux-logout"), -- Logout Screen
+       [  
+        (xK_w, spawn myBrowser), 
+        (xK_e, spawn myTerminal), 
+        (xK_a, spawn myFileManager), 
+        (xK_t, spawn myTorrent), 
+        (xK_m, spawn myEmail),
         (xK_q, kill1), -- Quit the currently focused client
-        (xK_F1, killAll), -- Quit All Windows in WorkSpace
+        (xK_r, spawn $ runTerminal ++ "~/.sh/.xmdr.sh"), -- Recompile & Restarts xmonad or show Error
+        (xK_Delete, io exitSuccess), -- Quits xmonad
+        (xK_f, spawn "archlinux-logout"), -- Logout Screen
         (xK_v, spawn "pavucontrol"), -- Open Volume Manager
         (xK_s, shellPrompt xPromptConfig), -- Run XPrompt
-        (xK_e, spawn myTerminal), -- Run Terminal
-        (xK_w, spawn myBrowser), -- Run Browser
         (xK_n, spawn $ myBrowser ++ " -private-window"), -- Run PrivateBrowser
-        (xK_a, spawn myFileManager), -- Open File Manager
         (xK_space, sendMessage NextLayout), -- Cycle through the available layout algorithms
-        (xK_F2, sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts), -- Toggles full width
-        (xK_F3, sinkAll), -- Push all windows back into tiling
         (xK_Tab, nextWS), -- Next WorkSpace
         (xK_comma, windows W.focusDown), -- Move focus <-
         (xK_period, windows W.focusUp), -- Move focus ->
-        (xK_t, spawn myTorrent), --
-        (xK_y, spawn myVM_Manager), --
-        (xK_m, spawn myEmail) --
+        (xK_z,  dirExecPromptNamed xPromptConfig spawn "/home/vicenzo/.sh/" "Run:Scripts $ ")
+        -- xK_x xK_c, 
        ] 
   ++ map
       (first $ (,) (windowsKey .|. shiftMask)) -- WindownKey + ShiftKey + <Key>
-       [ -- XPrompt
+       [ -- 
+        (xK_w, spawn $ myBrowser ++ " -private-window"), -- Run PrivateBrowser
+        (xK_Tab, shiftTo Next AnyWS),
         (xK_s, S.promptSearchBrowser browserXPConfig myBrowser mySearchEngines),
-        (xK_c, calcPrompt calcXPConfig "=")
-       ] 
+        (xK_d, calcPrompt calcXPConfig "="),
+        (xK_q, killAll),
+        (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim") 
+       ]  
   ++ map
       (first $ (,) controlMask) -- Control + <Key>
        [ --
         (xK_e, spawn mySpotify), -- Spotify
         (xK_comma, decWindowSpacing 4), -- Decrease window spacing
-        (xK_period, incWindowSpacing 4) -- Increase window spacing
+        (xK_period, incWindowSpacing 4), -- Increase window spacing 
+
+        (xK_Delete, sinkAll) -- Push all windows back into tiling
        ]
   ++ map
       (first $ (,) shiftMask) -- Shift + <Key>
@@ -206,13 +207,18 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
         (xF86XK_AudioStop, spawn "playerctl stop"),
         (xK_Print, spawn "scrot '%Y-%m-%d-%s_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir SCREENSHOTS)'") --Screenshot
        ]
-  ++   [ -- Misc 
-        ((windowsKey, k), windows $ f i) | (i, k) <- zip (XMonad.workspaces conf) [xK_1, xK_2, xK_3, xK_4, xK_5], (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)] -- Switch windows to WorkSpaces
+  ++   [   
+        ((shift .|. windowsKey, k), windows $ f i)
+        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_5] -- WindowsKey + 1 .. 5 # Go to WorkSpace
+        , (f, shift) <- [(W.greedyView, 0), (W.shift, shiftMask)] --  WindowsKey + ShiftKey + 1 .. 5 # Move Window to WorkSpace
+       ]
+  ++
+       [
+        ((windowsKey .|. shiftMask, xK_z), dirExecPromptNamed  xPromptConfig fn "/home/vicenzo/.sh/" "RunTerminal:Scripts $ ") | (fn) <- [(runInTerm " --hold ")]
        ]
   where
     nonNSP = WSIs (return (\ws -> W.tag ws /= "NSP"))
     nonEmptyNonNSP = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
-
 ------------------------------------------------------------------------
 -- MouseBindings
 ------------------------------------------------------------------------
@@ -220,15 +226,12 @@ myMouseBindings conf@(XConfig {XMonad.modMask = windowsKey}) =
   M.fromList $
     map
       (first $ (,) windowsKey) --  WindowsKey + <Key>
-      [ (button1, \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster),
+        [(button1, \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster),
         -- mod-button2, Raise the window to the top of the stack
-        (button2, \w -> focus w >> windows W.shiftMaster),
+         (button2, \w -> focus w >> windows W.shiftMaster),
         -- mod-button3, Set the window to floating mode and resize by dragging
-        (button3, \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
-        -- you may also bind events to the mouse scroll wheel (button4 and button5)
-
-      ]
-
+         (button3, \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
+        ]
 ------------------------------------------------------------------------
 -- Workspaces
 ------------------------------------------------------------------------
@@ -246,7 +249,6 @@ myWorkspaces =
 
 windowCount :: X (Maybe String)
 windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
-
 ------------------------------------------------------------------------
 -- XPrompt
 ------------------------------------------------------------------------
@@ -254,11 +256,11 @@ xPromptConfig :: XPConfig
 xPromptConfig =
   def
     { font = myFont ++ "bold:size=16",
-      bgColor = myXPbgColor,
-      fgColor = myXPfgColor,
-      bgHLight = myXPbgHLight,
-      fgHLight = myXPfgHLight,
-      borderColor = myXPborderColor,
+      bgColor = myXPromptbgColor,
+      fgColor = myXPromptfgColor,
+      bgHLight = myXPromptbgHLight,
+      fgHLight = myXPromptfgHLight,
+      borderColor = myXPromptborderColor,
       promptBorderWidth = 0,
       promptKeymap = xPromptKeymap,
       position = Bottom,
@@ -281,7 +283,6 @@ browserXPConfig =
       autoComplete = Nothing,
       height = 36,
       bgHLight = "#FFFFFF",
-      fgHLight = myXPfgHLight,
       bgColor = "#e78284",
       fgColor = "#303446",
       position = CenteredAt {xpCenterY = 0.1, xpWidth = 0.3},
@@ -299,6 +300,15 @@ calcXPConfig =
       fgColor = "#292c3c",
       historySize = 0
     }
+
+calcPrompt :: XPConfig -> String -> X ()
+calcPrompt c ans =
+  inputPrompt c (trim ans) ?+ \input ->
+    liftIO (runProcessWithInput "qalc" [input] "") >>= calcPrompt c
+  where
+    trim = f . f
+      where
+        f = reverse . dropWhile isSpace
 
 archwiki, news, reddit, youtube :: S.SearchEngine
 archwiki = S.searchEngine "arch" "https://wiki.archlinux.org/index.php?search="
@@ -319,15 +329,6 @@ mySearchEngines =
         S.google,
         S.wikipedia
       ]
-
-calcPrompt :: XPConfig -> String -> X ()
-calcPrompt c ans =
-  inputPrompt c (trim ans) ?+ \input ->
-    liftIO (runProcessWithInput "qalc" [input] "") >>= calcPrompt c
-  where
-    trim = f . f
-      where
-        f = reverse . dropWhile isSpace
 
 xPromptKeymap :: M.Map (KeyMask, KeySym) (XP ())
 xPromptKeymap =
@@ -369,13 +370,11 @@ xPromptKeymap =
           (xK_Up, moveHistory W.focusDown'),
           (xK_Escape, quit)
         ]
-
 ------------------------------------------------------------------------
 -- Space between Tiling Windows
 ------------------------------------------------------------------------
 mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing i = spacingRaw False (Border 30 10 10 10) True (Border 10 10 10 10) True
-
 ------------------------------------------------------------------------
 -- Layout Hook
 ------------------------------------------------------------------------
@@ -387,24 +386,13 @@ myLayoutHook =
           mkToggle (NBFULL ?? NOBORDERS ?? MIRROR ?? EOT) myDefaultLayout
   where
     myDefaultLayout =  grid
---      withBorder myBorderWidth tall
         ||| noBorders full
         ||| magnify
         ||| mirror
         ||| noBorders tabs
-
 ------------------------------------------------------------------------
 -- Tiling Layouts
 ------------------------------------------------------------------------
---tall =
--- renamed [Replace " <fc=#95e6cb><fn=2> \61449 </fn>Tall</fc>"] $
---    smartBorders $
---      windowNavigation $
---        subLayout [] (smartBorders Simplest) $
---          limitWindows 8 $
---            mySpacing 5 $
---              ResizableTall 1 (3 / 100) (1 / 2) []
-
 grid =
   renamed [Replace " <fc=#95e6cb><fn=2> \61449 </fn>Grid</fc>"] $
     smartBorders $
@@ -453,7 +441,6 @@ tabs =
           activeTextColor = "#ffffff",
           inactiveTextColor = "#d0d0d0"
         }
-
 ------------------------------------------------------------------------
 -- Scratch Pads
 ------------------------------------------------------------------------
@@ -469,7 +456,6 @@ myScratchPads =
   where
     launchMocp = myTerminal ++ " -t ncmpcpp -e ncmpcpp"
     launchTerminal = myTerminal ++ " -t scratchpad"
-
 ------------------------------------------------------------------------
 -- Floats
 ------------------------------------------------------------------------

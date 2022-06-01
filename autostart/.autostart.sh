@@ -12,9 +12,18 @@ blue='\033[1;34m'
 #yay -Syu
 #clear
 #-----------------
-if [ -f ~/.xmobar.hs ]; then
+if [ -d ~/.sh ]; then
+  echo -e "$blue  shell config detected. creating backup file and copying new config... $rset"
+  cp -r ~/config/.sh/* ~/.sh/
+else
+  echo -e "$red copying shell config file... $rset"
+  mkdir ~/.sh
+  cp -r ~/config/.sh/* ~/.sh/
+fi
+#------------------
+if [ -f ~/.sh/.xmobar.hs ]; then
   echo -e "$blue xmobar config detected. creating backup file and copying new config... $rset"
-  cp ~/config/xmobar/.xmobar.hs ~/.xmobar.hs
+  cp ~/config/xmobar/.xmobar.hs ~/.sh/.xmobar.hs
 else
   echo -e "$red copying xmobar config file... $rset"
   cp ~/config/xmobar/.xmobar.hs ~/.xmobar.hs
@@ -29,9 +38,9 @@ else
   cp ~/config/alacritty/alacritty.yml ~/.config/alacritty/alacritty.yml
 fi
 #-----------------
-if [ -f ~/.autostart.sh ]; then 
+if [ -f ~/.sh/.autostart.sh ]; then 
  echo -e "$blue autostart configs detected, backing up and copying new config... $rset"
- cp ~/config/autostart/.autostart.sh ~/.autostart.sh 
+ cp ~/config/autostart/.autostart.sh ~/.sh/.autostart.sh 
 else
  echo -e "$red installing autostart configs... $rset"a
  cp ~/config/autostart/.autostart.sh ~/.autostart.sh 
@@ -45,9 +54,9 @@ else
   cp ~/config/zsh/.zshrc ~/.zshrc
 fi
 #-----------------
-if [ -f ~/.picom.conf ]; then
+if [ -f ~/.sh/.picom.conf ]; then
 echo -e "$blue picom configs detected, backing up and copying new config... $rset"
-  cp  ~/config/picom/picom.conf ~/.picom.conf
+  cp  ~/config/picom/picom.conf ~/.sh/.picom.conf
 else
   echo -e "$red Installing zsh configs... $rset"
   cp ~/config/picom/picom.conf ~/.picom.conf
@@ -80,7 +89,7 @@ function run {
 if [ -d ~/.xmonad ]; then
    xmonad --recompile  &
    xmonad --restart    &
-   picom -b --animations --animation-window-mass 0.5 --animation-for-open-window zoom --animation-stiffness 350 --config $HOME/.picom.conf & # this is not normal picom 
+   picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --config $HOME/.sh/.picom.conf & # this is not normal picom 
    ckb-next -b &
    run nm-applet &
    run pamac-tray &
