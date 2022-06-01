@@ -1,6 +1,6 @@
 #!/bin/sh
 #--------------------
-ssh-agent
+ssh-agent -s
 ssh-add ~/.ssh/key
 clear
 #--------------------
