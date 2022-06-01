@@ -6,7 +6,7 @@ grn='\033[1;32m'
 blue='\033[1;34m'
 
 function add_file() {
-    [ -f "$ZDOTDIR/$1" ] && source "$ZDOTDIR/$1"
+    [ -f "$ZDOTDIR/$1.sh" ] && source "$ZDOTDIR/$1.sh"
 }
 
 function add() {

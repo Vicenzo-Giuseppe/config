@@ -89,6 +89,7 @@ function run {
 if [ -d ~/.xmonad ]; then
    xmonad --recompile  &
    xmonad --restart    &
+   run nitrogen --restore &
    picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --config $HOME/.sh/.picom.conf & # this is not normal picom 
    ckb-next -b &
    run nm-applet &
@@ -98,7 +99,6 @@ if [ -d ~/.xmonad ]; then
    numlockx on &
    blueberry-tray &
    /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-   /usr/lib/xfce4/notifyd/xfce4-notifyd &
-   run nitrogen --restore  
-fi
+   /usr/lib/xfce4/notifyd/xfce4-notifyd 
+  fi
 
