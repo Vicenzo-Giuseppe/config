@@ -16,3 +16,6 @@
 [submodule "zsh/plugins/zsh-z"]
 	path = zsh/plugins/zsh-z
 	url = https://github.com/agkozak/zsh-z.git
+[submodule "lvim"]
+	path = lvim
+	url = https://github.com/abzcoding/lvim.git

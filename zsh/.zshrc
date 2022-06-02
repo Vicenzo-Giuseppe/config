@@ -1,9 +1,5 @@
 #!/bin/sh
 #--------------------
-ssh-agent -s
-ssh-add ~/.ssh/key
-clear
-#--------------------
 export ZDOTDIR=$HOME/config/zsh/.zsh/
 source "$ZDOTDIR/functions.sh"
 add_file "exports"

@@ -1,6 +1,6 @@
 Config { font    = "xft:Ubuntu:weight=bold:pixelsize=13:antialias=true:hinting=true,Font Awesome 6 Free Regular:pixelsize=14"
        , additionalFonts = [ "xft:Mononoki Nerd Font:pixelsize=13:antialias=true:hinting=true"
-                           , "xft:Font Awesome 6 Free Solid:pixelsize=13"
+                           , "xft:Font Awesome 6 Free Solid:pixelsize=16"
                            , "xft:FontAwesome:pixelsize=10"                         -- Weather
                            , "xft:Font Awesome 6 Free Solid:pixelsize=10"           -- MPD music player
                            , "xft:Font Awesome 6 Free Regular:pixelsize=13"         -- Tiling
@@ -54,7 +54,7 @@ Config { font    = "xft:Ubuntu:weight=bold:pixelsize=13:antialias=true:hinting=t
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "<fc=#212733> | | </fc> <fc=#73d0ff><fn=2></fn></fc> \
+       , template = "<fc=#212733> | | </fc> <fc=#95e6cb><fn=2></fn></fc> \
        \<fc=#212733> | </fc> %UnsafeStdinReader% \
        \<fc=#212733> | </fc>  <fc=#73d0ff> <action=`alacritty -e htop`> %cpu% %multicoretemp%  </action> </fc> \
        \<fc=#212733> | </fc>  <fc=#ff79c6> <action=`alacritty -e htop`>%memory%</action> </fc> \
