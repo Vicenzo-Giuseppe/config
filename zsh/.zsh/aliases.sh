@@ -22,6 +22,7 @@ alias li='exa -l --color=always --icons --group-directories-first'  # long forma
 alias l.='exa -a | egrep "^\."'
 
 #  General
+alias c!='cp '
 alias cp='cp -i'
 alias mv='mv -i'
 alias rmf='rm -i -rf'

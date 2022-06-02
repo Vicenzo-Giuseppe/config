@@ -72,10 +72,10 @@ fi
 #-----------------
 if [ -d ~/.xmonad/ ]; then
   echo -e "$blue xmonad configs detected, backing up and copying new config... $rset"
-   cp -r ~/config/xmonad/.xmonad/* ~/.xmonad/
+   cp ~/config/xmonad/xmonad.hs ~/.xmonad/xmonad.hs
 else
   echo -e "$red Installing xmonad configs... $rset"
-  mkdir ~/.xmonad/ && cp ~/config/xmonad/.xmonad/* ~/.xmonad/
+  mkdir ~/.xmonad/ && cp ~/config/xmonad/xmonad.hs ~/.xmonad/xmonad.hs
 fi
 
 sleep 1
