@@ -81,7 +81,7 @@ myWhatsapp = "whatsapp-for-linux"
 myTelegram = "telegram-desktop"
 myFileManager = "thunar"
 myTorrent="transmission-gtk"
-myVM_Manager="vmware"
+myVM="vmware"
 myEmail="mailspring"
 ------------------------------------------------------------------------
 -- Colors
@@ -172,6 +172,7 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
         (xK_s, S.promptSearchBrowser browserXPConfig myBrowser mySearchEngines),
         (xK_d, calcPrompt calcXPConfig "="),
         (xK_q, killAll),
+        (xK_v, spawn myVM),
         (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim") 
        ]  
   ++ map

@@ -38,8 +38,8 @@ alias pkgs='pacman -Qqe | grep -v "$(pacman -Qqm)" > ~/.temp/pacman.lst && lvim 
 # Zsh
 alias zshrc="l $ZDOTDIR/.zshrc"
 alias zc="l $ZDOTDIR"
-alias zk="l $ZDOTDIR/keybinds" 
-alias za="l $ZDOTDIR/aliases"
+alias zk="l $ZDOTDIR/keybinds.sh" 
+alias za="l $ZDOTDIR/aliases.sh"
 alias zp="l $ZDOTDIR/prompt-starship.toml"
 alias zupdt="find "$ZDOTDIR/plugins" -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull -q"
 

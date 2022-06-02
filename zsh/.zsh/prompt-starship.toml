@@ -63,24 +63,24 @@ error_symbol = "[λ](bold red) "
 vicmd_symbol = "[ ](bold purple)"
 
 [username]
-style_user = "fg:bold italic cyan"
+style_user = "fg:bold italic #F28FAD"
 show_always = true
 format = "[Vicenzo]($style) "
 
 [directory]
 truncation_length = 10
 truncate_to_repo = false
-style = "bold  #C3DBC5 bg:#124E78"
-format = "[:: ](bold #B33F62)[$path ]($style)[$read_only]($read_only_style) "
+style = "bold  #C3DBC5 bg:#643FFF"
+format = "[:: ](bold #b7bdf8)[$path ]($style)[$read_only]($read_only_style) "
 
 [time]
-time_format = " %a, %I:%M%P | %b %d "
+time_format = "%I:%M%P_%b-%d"
 format = "[$time]($style)"
-style = 'italic'
+style = 'bold #b7bdf8'
 disabled = false
 
 [nodejs]
 symbol = " "
 
 [fill]
-style = 'italic bold #D06763'
+style = 'italic bold #00ffd0'
