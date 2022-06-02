@@ -1,4 +1,7 @@
 #!/bin/sh
+#--------SSH---------
+eval `keychain --eval --agents ssh key` 
+clear
 #--------------------
 export ZDOTDIR=$HOME/config/zsh/.zsh/
 source "$ZDOTDIR/functions.sh"
