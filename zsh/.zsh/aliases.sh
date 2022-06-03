@@ -54,5 +54,6 @@ alias pk='killall picom'
 alias p='picom -b '
 alias ph='picom -h | grep animation'
 alias ph2='cat ~/.h/.ph'
+alias cloudflare='wrangler '
 
 

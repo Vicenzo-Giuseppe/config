@@ -17,5 +17,5 @@ cp ~/.config/alacritty/alacritty.yml ~/config/alacritty/alacritty.yml
 cp ~/.sh/.autostart.sh ~/config/autostart/.autostart.sh 
 cp ~/.zshrc ~/config/zsh/.zshrc 
 cp ~/.sh/.picom.conf ~/config/picom/picom.conf
-cp -r ~/.xmonad/* ~/config/xmonad/.xmonad/ 
-kill -9 $PPIDkill -9 $PPID
+cp ~/.xmonad/xmonad.hs ~/config/xmonad/xmonad.hs
+cp -r ~/.sh/* ~/config/.sh/

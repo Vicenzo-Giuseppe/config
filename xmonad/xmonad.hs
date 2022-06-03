@@ -7,26 +7,28 @@
       ____/\\\////\\\___\/\\\_____________\/\\\_\//\\\__/\\\__\/\\\___\/\\\__/\\\/////\\\__\/\\\__\/\\\
        __/\\\/___\///\\\_\/\\\_____________\/\\\__\///\\\\\/___\/\\\___\/\\\_\//\\\\\\\\/\\_\//\\\\\\\/\\_
         _\///_______\///__\///______________\///_____\/////_____\///____\///___\////////\//___\///////\//__-}
-
-import Control.Arrow (first)
-import Data.Char (isSpace)
+import qualified XMonad.Layout.ToggleLayouts as T (ToggleLayout (Toggle), toggleLayouts)
+import qualified XMonad.Layout.MultiToggle as MT (Toggle (..))
+import qualified XMonad.Hooks.EwmhDesktops as H
+import qualified XMonad.Actions.Search as S
+import qualified XMonad.Actions.Submap as SM
+import qualified XMonad.StackSet as W
 import qualified Data.Map as M
+import Data.Char (isSpace)
 import Data.Maybe (fromJust, isJust)
 import Data.Monoid
 import Data.Semigroup
 import Graphics.X11.ExtraTypes.XF86
+import Control.Arrow (first)
 import System.Exit
 import System.IO (hPutStrLn)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
 import XMonad.Actions.CycleWS( nextWS, WSType(WSIs,EmptyWS,AnyWS), moveTo, shiftTo)
 import XMonad.Actions.MouseResize
-import qualified XMonad.Actions.Search as S
-import qualified XMonad.Actions.Submap as SM
 import XMonad.Actions.WithAll (killAll, sinkAll)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
-import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks (ToggleStruts (..), avoidStruts, docksEventHook, manageDocks)
 import XMonad.Hooks.ManageHelpers (doCenterFloat, doFullFloat, doRectFloat, isDialog, isFullscreen)
 import XMonad.Hooks.SetWMName
@@ -35,7 +37,6 @@ import XMonad.Layout.LayoutModifier
 import XMonad.Layout.LimitWindows (decreaseLimit, increaseLimit, limitWindows)
 import XMonad.Layout.Magnifier
 import XMonad.Layout.MultiToggle (EOT (EOT), mkToggle, single, (??))
-import qualified XMonad.Layout.MultiToggle as MT (Toggle (..))
 import XMonad.Layout.MultiToggle.Instances (StdTransformers (MIRROR, NBFULL, NOBORDERS))
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
@@ -44,45 +45,35 @@ import XMonad.Layout.Simplest
 import XMonad.Layout.Spacing
 import XMonad.Layout.SubLayouts
 import XMonad.Layout.Tabbed
-import qualified XMonad.Layout.ToggleLayouts as T (ToggleLayout (Toggle), toggleLayouts)
 import XMonad.Layout.WindowArranger (WindowArrangerMsg (..), windowArrange)
 import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
 import XMonad.Prompt.FuzzyMatch
 import XMonad.Prompt.Input
-import XMonad.Prompt.Man
-import XMonad.Prompt.Pass
 import XMonad.Prompt.Shell (shellPrompt)
-import XMonad.Prompt.Ssh
-import XMonad.Prompt.XMonad
-import qualified XMonad.StackSet as W
-import XMonad.Util.Dmenu
-import XMonad.Util.EZConfig (additionalKeysP)
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
-import qualified XMonad.Prompt.Workspace as PWork
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Prompt.DirExec
-import XMonad.Actions.MouseGestures
 import XMonad.Util.Run(runInTerm)
 ------------------------------------------------------------------------
 -- Preferences
 ------------------------------------------------------------------------
-windowsKey = mod4Mask 
-myBorderWidth = 4 
-myFont = "xft:mononoki Nerd Font:"
+windowsKey = mod4Mask
 myTerminal = "alacritty "
-runTerminal = myTerminal ++ " --hold -e "
 myBrowser = "/usr/bin/firefox"
-mySpotify = ""
+myFileManager = "thunar"
+myEmail="mailspring"
+myFont = "xft:mononoki Nerd Font:"
 myWhatsapp = "whatsapp-for-linux"
 myTelegram = "telegram-desktop"
-myFileManager = "thunar"
+mySpotify = ""
 myTorrent="transmission-gtk"
 myVM="vmware"
-myEmail="mailspring"
+myAPITestManager="insomnia"
+myBorderWidth = 4
 ------------------------------------------------------------------------
 -- Colors
 ------------------------------------------------------------------------
@@ -109,8 +100,7 @@ myStartupHook = do
 main :: IO ()
 main = do
   xmobar <- spawnPipe "/usr/bin/xmobar ~/.sh/.xmobar.hs"
-  xmonad $
-    ewmh
+  xmonad $ H.ewmh 
       def
         { manageHook = myManageHook <+> manageDocks,
           logHook =
@@ -134,7 +124,7 @@ main = do
           terminal = myTerminal,
           borderWidth = myBorderWidth,
           startupHook = myStartupHook,
-          handleEventHook = myHandleEventHook
+          handleEventHook = H.fullscreenEventHook <+> myHandleEventHook
         }
 ------------------------------------------------------------------------
 -- KeyBindings
@@ -143,62 +133,59 @@ myKeys :: XConfig l0 -> M.Map (ButtonMask, KeySym) (X ())
 myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
   M.fromList $
     map
-      (first $ (,) windowsKey) -- WindownKey + <Key>
-       [  
-        (xK_w, spawn myBrowser), 
-        (xK_e, spawn myTerminal), 
-        (xK_a, spawn myFileManager), 
-        (xK_t, spawn myTorrent), 
-        (xK_m, spawn myEmail),
-        (xK_q, kill1), -- Quit the currently focused client
-        (xK_r, spawn $ runTerminal ++ "~/.sh/xmdr.sh"), -- Recompile & Restarts xmonad or show Error
-        (xK_Delete, io exitSuccess), -- Quits xmonad
-        (xK_f, spawn "archlinux-logout"), -- Logout Screen
-        (xK_v, spawn "pavucontrol"), -- Open Volume Manager
-        (xK_s, shellPrompt xPromptConfig), -- Run XPrompt
-        (xK_n, spawn $ myBrowser ++ " -private-window"), -- Run PrivateBrowser
-        (xK_space, sendMessage NextLayout), -- Cycle through the available layout algorithms
-        (xK_Tab, nextWS), -- Next WorkSpace
-        (xK_comma, windows W.focusDown), -- Move focus <-
-        (xK_period, windows W.focusUp), -- Move focus ->
-        (xK_z,  dirExecPromptNamed xPromptConfig spawn "/home/vicenzo/.sh/" "Run:Scripts $ ")
-        -- xK_x xK_c, 
-       ] 
+      (first $ (,) windowsKey) -- WindowsKey + <Key>
+       [
+        (xK_q, kill1),
+        (xK_w, spawn myBrowser),
+        (xK_e, spawn myTerminal),
+        (xK_r, spawn $ runTerminal ++ "~/.sh/xmdr.sh"), 
+        (xK_t, sinkAll),
+        (xK_a, spawn myFileManager),
+        (xK_s, S.promptSearchBrowser browserXPConfig myBrowser mySearchEngines),
+        (xK_d, spawn myEmail),
+        (xK_f, spawn myVM),
+        (xK_g, spawn myTorrent),
+        (xK_z, shellPrompt xPromptConfig),
+        (xK_x,  dirExecPromptNamed xPromptConfig spawn "/home/vicenzo/.sh/" "Run:Scripts $ "),
+        (xK_v, spawn "pavucontrol"),
+        (xK_Escape, spawn "archlinux-logout"),
+        (xK_Tab, nextWS),
+        (xK_space, sendMessage NextLayout),
+        (xK_comma, windows W.focusDown),
+        (xK_period, windows W.focusUp)
+       ]
   ++ map
       (first $ (,) (windowsKey .|. shiftMask)) -- WindownKey + ShiftKey + <Key>
-       [ -- 
-        (xK_w, spawn $ myBrowser ++ " -private-window"), -- Run PrivateBrowser
-        (xK_Tab, shiftTo Next AnyWS),
-        (xK_s, S.promptSearchBrowser browserXPConfig myBrowser mySearchEngines),
-        (xK_d, calcPrompt calcXPConfig "="),
+       [
         (xK_q, killAll),
-        (xK_v, spawn myVM),
-        (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim") 
-       ]  
+        (xK_w, spawn $ myBrowser ++ " -private-window"),
+        (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim"),
+        (xK_a, calcPrompt calcXPConfig "="),
+        (xK_s, spawn mySpotify),
+        (xK_d, spawn myAPITestManager),
+        (xK_Escape, io exitSuccess),
+        (xK_Tab, shiftTo Next AnyWS)
+       ]
   ++ map
       (first $ (,) controlMask) -- Control + <Key>
-       [ --
-        (xK_e, spawn mySpotify), -- Spotify
-        (xK_comma, decWindowSpacing 4), -- Decrease window spacing
-        (xK_period, incWindowSpacing 4), -- Increase window spacing 
-
-        (xK_Delete, sinkAll) -- Push all windows back into tiling
+       [
+        (xK_comma, decWindowSpacing 4),
+        (xK_period, incWindowSpacing 4)
        ]
   ++ map
       (first $ (,) shiftMask) -- Shift + <Key>
        [
-
        ]
   ++ map
       (first $ (,)  mod1Mask) -- Alt + <Key>
-       [ 
-        (xK_w, namedScratchpadAction myScratchPads "whatsapp-for-linux"),
-        (xK_t, namedScratchpadAction myScratchPads "telegram"),
+       [
+        (xK_q, spawn myTelegram),
+        (xK_w, spawn myWhatsapp),
         (xK_e, namedScratchpadAction myScratchPads "terminal")
        ]
   ++ map
       (first $ (,) 0) -- Only <Key>
-       [ -- MultiMediaKeys
+       [
         (xF86XK_AudioMute, spawn "amixer -q set Master toggle"),
         (xF86XK_AudioLowerVolume, spawn "amixer -q set Master 10%-"),
         (xF86XK_AudioRaiseVolume, spawn "amixer -q set Master 10%+"),
@@ -208,9 +195,9 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
         (xF86XK_AudioNext, spawn "playerctl next"),
         (xF86XK_AudioPrev, spawn "playerctl previous"),
         (xF86XK_AudioStop, spawn "playerctl stop"),
-        (xK_Print, spawn "scrot '%Y-%m-%d-%s_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir SCREENSHOTS)'") --Screenshot
+        (xK_Print, spawn "scrot '%Y-%m-%d-%s_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir SCREENSHOTS)'")
        ]
-  ++   [   
+  ++   [
         ((shift .|. windowsKey, k), windows $ f i)
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_5] -- WindowsKey + 1 .. 5 # Go to WorkSpace
         , (f, shift) <- [(W.greedyView, 0), (W.shift, shiftMask)] --  WindowsKey + ShiftKey + 1 .. 5 # Move Window to WorkSpace
@@ -222,6 +209,7 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
   where
     nonNSP = WSIs (return (\ws -> W.tag ws /= "NSP"))
     nonEmptyNonNSP = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
+    runTerminal = myTerminal ++ " --hold -e "
 ------------------------------------------------------------------------
 -- MouseBindings
 ------------------------------------------------------------------------
@@ -271,12 +259,11 @@ xPromptConfig =
       historySize = 256,
       historyFilter = id,
       defaultText = [],
-      autoComplete = Just 100000, -- set Just 100000 for .1 sec
+      autoComplete = Just 100000, 
       showCompletionOnTab = False,
-      -- , searchPredicate     = isPrefixOf
       searchPredicate = fuzzyMatch,
       alwaysHighlight = True,
-      maxComplRows = Nothing -- set to Just 5 for 5 rows
+      maxComplRows = Nothing 
     }
 
 browserXPConfig :: XPConfig
@@ -313,11 +300,12 @@ calcPrompt c ans =
       where
         f = reverse . dropWhile isSpace
 
-archwiki, news, reddit, youtube :: S.SearchEngine
-archwiki = S.searchEngine "arch" "https://wiki.archlinux.org/index.php?search="
-news = S.searchEngine "news" "https://news.google.com/search?q="
-reddit = S.searchEngine "reddit" "https://www.reddit.com/search/?q="
+archwiki, news, reddit, youtube, google :: S.SearchEngine
+archwiki = S.searchEngine "aw" "https://wiki.archlinux.org/index.php?search="
+news = S.searchEngine "n" "https://news.google.com/search?q="
+reddit = S.searchEngine "r" "https://www.reddit.com/search/?q="
 youtube = S.searchEngine "yt" "https://www.youtube.com/results?search_query="
+google = S.searchEngine "gg" "https://www.google.com/search?q="
 
 mySearchEngines :: S.SearchEngine
 mySearchEngines =
@@ -329,7 +317,7 @@ mySearchEngines =
         news,
         reddit,
         youtube,
-        S.google,
+        google,
         S.wikipedia
       ]
 
@@ -405,7 +393,6 @@ grid =
             mySpacing 5 $
               mkToggle (single MIRROR) $
                 Grid (16 / 10)
-
 mirror =
   renamed [Replace " <fc=#b7bdf8><fn=2> \62861 </fn>Mirror</fc>"] $
     smartBorders $
@@ -415,22 +402,17 @@ mirror =
             mySpacing 5 $
               Mirror $
                 ResizableTall 1 (3 / 100) (1 / 2) []
-
 full =
   renamed [Replace " <fc=#b7bdf8><fn=2> \62556 </fn>Full</fc>"] $
     Full
-
 magnify =
   renamed [Replace " <fc=#b7bdf8><fn=2> \61618 </fn>Magnify</fc>"] $
     magnifier $
       limitWindows 12 $
         mySpacing 8 $
     ResizableTall 1 (3 / 100) (1 / 2) []
-
 tabs =
   renamed [Replace "<fc=#b7bdf8><fn=2> \62162 </fn>Tabs</fc>"]
-  -- I cannot add spacing to this layout because it will
-  -- add spacing between window and tabs which looks bad.
   $
     tabbed shrinkText myTabConfig
   where
@@ -451,15 +433,13 @@ myScratchPads :: [NamedScratchpad]
 myScratchPads =
   [ NS "discord" "discord" (appName =? "discord") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "spotify" "spotify" (appName =? "spotify") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
-    NS "nautilus" "nautilus" (className =? "Org.gnome.Nautilus") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
-    NS "ncmpcpp" launchMocp (title =? "ncmpcpp") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "whatsapp-for-linux" myWhatsapp (appName =? "whatsapp-for-linux") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "telegram" myTelegram (title =? "Telegram") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
+    NS "insomnia" myAPITestManager (title =? "Insomnia") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "terminal" launchTerminal (title =? "scratchpad") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7)
   ]
-  where
-    launchMocp = myTerminal ++ " -t ncmpcpp -e ncmpcpp"
-    launchTerminal = myTerminal ++ " -t scratchpad"
+  where 
+   launchTerminal = myTerminal ++ " -t scratchpad"
 ------------------------------------------------------------------------
 -- Floats
 ------------------------------------------------------------------------
@@ -469,19 +449,10 @@ myManageHook =
     [ className =? "confirm" --> doFloat,
       className =? "file_progress" --> doFloat,
       resource =? "desktop_window" --> doIgnore,
-      className =? "MEGAsync" --> doFloat,
-      className =? "mpv" --> doCenterFloat,
-      className =? "Gthumb" --> doCenterFloat,
-      className =? "Ristretto" --> doCenterFloat,
-      className =? "feh" --> doCenterFloat,
-      className =? "Galculator" --> doCenterFloat,
-      className =? "Gcolor3" --> doFloat,
       className =? "dialog" --> doFloat,
       className =? "Downloads" --> doFloat,
       className =? "Save As..." --> doFloat,
-      className =? "Xfce4-appfinder" --> doFloat,
-      className =? "Org.gnome.NautilusPreviewer" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
-      className =? "Xdg-desktop-portal-gtk" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
+       className =? "Xdg-desktop-portal-gtk" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       className =? "Thunar" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       className =? "Sublime_merge" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       isFullscreen --> doFullFloat,
