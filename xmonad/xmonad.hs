@@ -7,28 +7,27 @@
       ____/\\\////\\\___\/\\\_____________\/\\\_\//\\\__/\\\__\/\\\___\/\\\__/\\\/////\\\__\/\\\__\/\\\
        __/\\\/___\///\\\_\/\\\_____________\/\\\__\///\\\\\/___\/\\\___\/\\\_\//\\\\\\\\/\\_\//\\\\\\\/\\_
         _\///_______\///__\///______________\///_____\/////_____\///____\///___\////////\//___\///////\//__-}
-import qualified XMonad.Layout.ToggleLayouts as T (ToggleLayout (Toggle), toggleLayouts)
-import qualified XMonad.Layout.MultiToggle as MT (Toggle (..))
-import qualified XMonad.Hooks.EwmhDesktops as H
-import qualified XMonad.Actions.Search as S
-import qualified XMonad.Actions.Submap as SM
-import qualified XMonad.StackSet as W
-import qualified Data.Map as M
+
+import Control.Arrow (first)
 import Data.Char (isSpace)
+import qualified Data.Map as M
 import Data.Maybe (fromJust, isJust)
 import Data.Monoid
 import Data.Semigroup
 import Graphics.X11.ExtraTypes.XF86
-import Control.Arrow (first)
 import System.Exit
 import System.IO (hPutStrLn)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
-import XMonad.Actions.CycleWS( nextWS, WSType(WSIs,EmptyWS,AnyWS), moveTo, shiftTo)
+import XMonad.Actions.CycleWS (WSType (EmptyWS, AnyWS, WSIs),  moveTo, nextWS, shiftTo)
+import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.MouseResize
+import qualified XMonad.Actions.Search as S
+import qualified XMonad.Actions.Submap as SM
 import XMonad.Actions.WithAll (killAll, sinkAll)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks (ToggleStruts (..), avoidStruts, docksEventHook, manageDocks)
 import XMonad.Hooks.ManageHelpers (doCenterFloat, doFullFloat, doRectFloat, isDialog, isFullscreen)
 import XMonad.Hooks.SetWMName
@@ -37,6 +36,7 @@ import XMonad.Layout.LayoutModifier
 import XMonad.Layout.LimitWindows (decreaseLimit, increaseLimit, limitWindows)
 import XMonad.Layout.Magnifier
 import XMonad.Layout.MultiToggle (EOT (EOT), mkToggle, single, (??))
+import qualified XMonad.Layout.MultiToggle as MT (Toggle (..))
 import XMonad.Layout.MultiToggle.Instances (StdTransformers (MIRROR, NBFULL, NOBORDERS))
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
@@ -45,77 +45,107 @@ import XMonad.Layout.Simplest
 import XMonad.Layout.Spacing
 import XMonad.Layout.SubLayouts
 import XMonad.Layout.Tabbed
+import qualified XMonad.Layout.ToggleLayouts as T (ToggleLayout (Toggle), toggleLayouts)
 import XMonad.Layout.WindowArranger (WindowArrangerMsg (..), windowArrange)
 import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
+import XMonad.Prompt.DirExec
 import XMonad.Prompt.FuzzyMatch
 import XMonad.Prompt.Input
 import XMonad.Prompt.Shell (shellPrompt)
+import qualified XMonad.StackSet as W
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
+import XMonad.Util.Run (runInTerm, runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
-import XMonad.Actions.DynamicWorkspaces
-import XMonad.Prompt.DirExec
-import XMonad.Util.Run(runInTerm)
+
+
 ------------------------------------------------------------------------
 -- Preferences
 ------------------------------------------------------------------------
 windowsKey = mod4Mask
-myTerminal = "alacritty "
+
+myTerminal = "alacritty"
+
 myBrowser = "/usr/bin/firefox"
+
 myFileManager = "thunar"
-myEmail="mailspring"
+
+myEmail = "mailspring"
+
 myFont = "xft:mononoki Nerd Font:"
-myWhatsapp = "whatsapp-for-linux"
+
+myWhatsapp = "whatstux "
+
 myTelegram = "telegram-desktop"
+
 mySpotify = ""
-myTorrent="transmission-gtk"
-myVM="vmware"
-myAPITestManager="insomnia"
-myBorderWidth = 4
+
+myTorrent = "transmission-gtk"
+
+myVM = "vmware"
+
+myAPITestManager = "insomnia"
+
+myBorderWidth = 0
+
+myFocusFollowsMouse = False
+
 ------------------------------------------------------------------------
 -- Colors
 ------------------------------------------------------------------------
 myXMonadBorderColor = "#E8A2AF"
+
 myXMonadFocusColor = "#643FFF"
+
 myXMobarCurrentWSColor = "#643FFF"
+
 myXMobarActiveWSColor = "#F28FAD"
+
 myXMobarEmptyWSColor = "#00ffd0"
+
 myXMobarWindowNameColor = "#F28FAD"
-myXPromptbgColor = "#643FFF" 
-myXPromptfgColor = "#E8A2AF" 
-myXPromptbgHLight = "#FFFFFF" 
-myXPromptfgHLight = "#89DCEB" 
+
+myXPromptbgColor = "#643FFF"
+
+myXPromptfgColor = "#E8A2AF"
+
+myXPromptbgHLight = "#FFFFFF"
+
+myXPromptfgHLight = "#89DCEB"
+
 myXPromptborderColor = "#535974"
+
 ------------------------------------------------------------------------
 -- Startup Hooks
 ------------------------------------------------------------------------
 myStartupHook = do
   spawnOnce "$HOME/.sh/.autostart.sh"
   setWMName "LG3D"
+
 ------------------------------------------------------------------------
 -- Main Function
 ------------------------------------------------------------------------
 main :: IO ()
 main = do
   xmobar <- spawnPipe "/usr/bin/xmobar ~/.sh/.xmobar.hs"
-  xmonad $ H.ewmh 
+  xmonad $
+     ewmh $
       def
         { manageHook = myManageHook <+> manageDocks,
           logHook =
             dynamicLogWithPP $
-              namedScratchpadFilterOutWorkspacePP $
                 xmobarPP
                   { ppOutput = hPutStrLn xmobar,
-                    ppCurrent = xmobarColor myXMobarCurrentWSColor "" . \s -> "<fn=2>\61832</fn>", 
+                    ppCurrent = xmobarColor myXMobarCurrentWSColor "" . \s -> "<fn=2>\61832</fn>",
                     ppHidden = xmobarColor myXMobarActiveWSColor "" . \s -> " <fn=10>\61713</fn>",
                     ppHiddenNoWindows = xmobarColor myXMobarEmptyWSColor "",
                     ppTitle = xmobarColor myXMobarWindowNameColor "" . shorten 85,
-                    ppSep = "<fc=#212733>  <fn=1> </fn> </fc>" 
-                    },
+                    ppSep = "<fc=#212733>  <fn=1> </fn> </fc>"
+                  },
           modMask = windowsKey,
           normalBorderColor = myXMonadBorderColor,
+          focusFollowsMouse = myFocusFollowsMouse,
           focusedBorderColor = myXMonadFocusColor,
           keys = myKeys,
           mouseBindings = myMouseBindings,
@@ -124,8 +154,9 @@ main = do
           terminal = myTerminal,
           borderWidth = myBorderWidth,
           startupHook = myStartupHook,
-          handleEventHook = H.fullscreenEventHook <+> myHandleEventHook
-        }
+          handleEventHook = fullscreenEventHook <+> myHandleEventHook
+          }
+
 ------------------------------------------------------------------------
 -- KeyBindings
 ------------------------------------------------------------------------
@@ -134,11 +165,10 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
   M.fromList $
     map
       (first $ (,) windowsKey) -- WindowsKey + <Key>
-       [
-        (xK_q, kill1),
+      [ (xK_q, kill1),
         (xK_w, spawn myBrowser),
         (xK_e, spawn myTerminal),
-        (xK_r, spawn $ runTerminal ++ "~/.sh/xmdr.sh"), 
+        (xK_r, spawn $ runTerminal ++ "~/.sh/xmdr.sh"),
         (xK_t, sinkAll),
         (xK_a, spawn myFileManager),
         (xK_s, S.promptSearchBrowser browserXPConfig myBrowser mySearchEngines),
@@ -146,70 +176,64 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
         (xK_f, spawn myVM),
         (xK_g, spawn myTorrent),
         (xK_z, shellPrompt xPromptConfig),
-        (xK_x,  dirExecPromptNamed xPromptConfig spawn "/home/vicenzo/.sh/" "Run:Scripts $ "),
+        (xK_x, dirExecPromptNamed xPromptConfig spawn "/home/vicenzo/.sh/" "Run:Scripts $ "),
         (xK_v, spawn "pavucontrol"),
         (xK_Escape, spawn "archlinux-logout"),
         (xK_Tab, nextWS),
         (xK_space, sendMessage NextLayout),
         (xK_comma, windows W.focusDown),
         (xK_period, windows W.focusUp)
-       ]
-  ++ map
-      (first $ (,) (windowsKey .|. shiftMask)) -- WindownKey + ShiftKey + <Key>
-       [
-        (xK_q, killAll),
-        (xK_w, spawn $ myBrowser ++ " -private-window"),
-        (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim"),
-        (xK_a, calcPrompt calcXPConfig "="),
-        (xK_s, spawn mySpotify),
-        (xK_d, spawn myAPITestManager),
-        (xK_Escape, io exitSuccess),
-        (xK_Tab, shiftTo Next AnyWS)
-       ]
-  ++ map
-      (first $ (,) controlMask) -- Control + <Key>
-       [
-        (xK_comma, decWindowSpacing 4),
-        (xK_period, incWindowSpacing 4)
-       ]
-  ++ map
-      (first $ (,) shiftMask) -- Shift + <Key>
-       [
-       ]
-  ++ map
-      (first $ (,)  mod1Mask) -- Alt + <Key>
-       [
-        (xK_q, spawn myTelegram),
-        (xK_w, spawn myWhatsapp),
-        (xK_e, namedScratchpadAction myScratchPads "terminal")
-       ]
-  ++ map
-      (first $ (,) 0) -- Only <Key>
-       [
-        (xF86XK_AudioMute, spawn "amixer -q set Master toggle"),
-        (xF86XK_AudioLowerVolume, spawn "amixer -q set Master 10%-"),
-        (xF86XK_AudioRaiseVolume, spawn "amixer -q set Master 10%+"),
-        (xF86XK_MonBrightnessUp, spawn "xbacklight -inc 5"),
-        (xF86XK_MonBrightnessDown, spawn "xbacklight -dec 5"),
-        (xF86XK_AudioPlay, spawn "playerctl play-pause"),
-        (xF86XK_AudioNext, spawn "playerctl next"),
-        (xF86XK_AudioPrev, spawn "playerctl previous"),
-        (xF86XK_AudioStop, spawn "playerctl stop"),
-        (xK_Print, spawn "scrot '%Y-%m-%d-%s_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir SCREENSHOTS)'")
-       ]
-  ++   [
-        ((shift .|. windowsKey, k), windows $ f i)
-        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_5] -- WindowsKey + 1 .. 5 # Go to WorkSpace
-        , (f, shift) <- [(W.greedyView, 0), (W.shift, shiftMask)] --  WindowsKey + ShiftKey + 1 .. 5 # Move Window to WorkSpace
-       ]
-  ++
-       [
-        ((windowsKey .|. shiftMask, xK_z), dirExecPromptNamed  xPromptConfig fn "/home/vicenzo/.sh/" "RunTerminal:Scripts $ ") | (fn) <- [(runInTerm " --hold ")]
-       ]
+      ]
+      ++ map
+        (first $ (,) (windowsKey .|. shiftMask)) -- WindownKey + ShiftKey + <Key>
+        [ (xK_q, killAll),
+          (xK_w, spawn $ myBrowser ++ " -private-window"),
+          (xK_e, spawn $ myTerminal ++ " --hold --working-directory ~/Code -e ~/.local/bin/lvim"),
+          (xK_a, calcPrompt calcXPConfig "="),
+          (xK_s, spawn mySpotify),
+          (xK_d, spawn myAPITestManager),
+          (xK_Escape, io exitSuccess),
+          (xK_Tab, shiftTo Next AnyWS)
+        ]
+      ++ map
+        (first $ (,) controlMask) -- Control + <Key>
+        [ (xK_comma, decWindowSpacing 4),
+          (xK_period, incWindowSpacing 4)
+        ]
+      ++ map
+        (first $ (,) shiftMask) -- Shift + <Key>
+        []
+      ++ map
+        (first $ (,) mod1Mask) -- Alt + <Key>
+        [ (xK_q, spawn myTelegram),
+          (xK_w, spawn myWhatsapp),
+          (xK_d, spawn "discord"),
+          (xK_e, namedScratchpadAction myScratchPads "terminal")
+        ]
+      ++ map
+        (first $ (,) 0) -- Only <Key>
+        [ (xF86XK_AudioMute, spawn "amixer -q set Master toggle"),
+          (xF86XK_AudioLowerVolume, spawn "amixer -q set Master 10%-"),
+          (xF86XK_AudioRaiseVolume, spawn "amixer -q set Master 10%+"),
+          (xF86XK_MonBrightnessUp, spawn "xbacklight -inc 5"),
+          (xF86XK_MonBrightnessDown, spawn "xbacklight -dec 5"),
+          (xF86XK_AudioPlay, spawn "playerctl play-pause"),
+          (xF86XK_AudioNext, spawn "playerctl next"),
+          (xF86XK_AudioPrev, spawn "playerctl previous"),
+          (xF86XK_AudioStop, spawn "playerctl stop"),
+          (xK_Print, spawn "scrot '%Y-%m-%d-%s_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir SCREENSHOTS)'")
+        ]
+      ++ [ ((shift .|. windowsKey, k), windows $ f i)
+           | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_5], -- WindowsKey + 1 .. 5 # Go to WorkSpace
+             (f, shift) <- [(W.greedyView, 0), (W.shift, shiftMask)] --  WindowsKey + ShiftKey + 1 .. 5 # Move Window to WorkSpace
+         ]
+      ++ [ ((windowsKey, xK_c), dirExecPromptNamed xPromptConfig fn "/home/vicenzo/.sh/" "RunTerminal:Scripts $ ") | (fn) <- [(runInTerm " --hold ")]
+         ]
   where
     nonNSP = WSIs (return (\ws -> W.tag ws /= "NSP"))
     nonEmptyNonNSP = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
     runTerminal = myTerminal ++ " --hold -e "
+
 ------------------------------------------------------------------------
 -- MouseBindings
 ------------------------------------------------------------------------
@@ -217,12 +241,11 @@ myMouseBindings conf@(XConfig {XMonad.modMask = windowsKey}) =
   M.fromList $
     map
       (first $ (,) windowsKey) --  WindowsKey + <Key>
-        [(button1, \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster),
-        -- mod-button2, Raise the window to the top of the stack
-         (button2, \w -> focus w >> windows W.shiftMaster),
-        -- mod-button3, Set the window to floating mode and resize by dragging
-         (button3, \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
-        ]
+      [ (button1, \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster),
+        (button2, \w -> focus w >> windows W.shiftMaster),
+        (button3, \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
+      ]
+
 ------------------------------------------------------------------------
 -- Workspaces
 ------------------------------------------------------------------------
@@ -240,6 +263,7 @@ myWorkspaces =
 
 windowCount :: X (Maybe String)
 windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
+
 ------------------------------------------------------------------------
 -- XPrompt
 ------------------------------------------------------------------------
@@ -259,11 +283,11 @@ xPromptConfig =
       historySize = 256,
       historyFilter = id,
       defaultText = [],
-      autoComplete = Just 100000, 
+      autoComplete = Just 100000,
       showCompletionOnTab = False,
       searchPredicate = fuzzyMatch,
       alwaysHighlight = True,
-      maxComplRows = Nothing 
+      maxComplRows = Nothing
     }
 
 browserXPConfig :: XPConfig
@@ -361,11 +385,13 @@ xPromptKeymap =
           (xK_Up, moveHistory W.focusDown'),
           (xK_Escape, quit)
         ]
+
 ------------------------------------------------------------------------
 -- Space between Tiling Windows
 ------------------------------------------------------------------------
 mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing i = spacingRaw False (Border 30 10 10 10) True (Border 10 10 10 10) True
+
 ------------------------------------------------------------------------
 -- Layout Hook
 ------------------------------------------------------------------------
@@ -376,11 +402,13 @@ myLayoutHook =
         T.toggleLayouts full $
           mkToggle (NBFULL ?? NOBORDERS ?? MIRROR ?? EOT) myDefaultLayout
   where
-    myDefaultLayout =  grid
-        ||| noBorders full
-        ||| noBorders magnify
+    myDefaultLayout =
+      grid
+        ||| full
+        ||| Main.magnify
         ||| mirror
-        ||| noBorders tabs
+        ||| tabs
+
 ------------------------------------------------------------------------
 -- Tiling Layouts
 ------------------------------------------------------------------------
@@ -393,6 +421,7 @@ grid =
             mySpacing 5 $
               mkToggle (single MIRROR) $
                 Grid (16 / 10)
+
 mirror =
   renamed [Replace " <fc=#b7bdf8><fn=2> \62861 </fn>Mirror</fc>"] $
     smartBorders $
@@ -402,18 +431,20 @@ mirror =
             mySpacing 5 $
               Mirror $
                 ResizableTall 1 (3 / 100) (1 / 2) []
+
 full =
   renamed [Replace " <fc=#b7bdf8><fn=2> \62556 </fn>Full</fc>"] $
     Full
+
 magnify =
   renamed [Replace " <fc=#b7bdf8><fn=2> \61618 </fn>Magnify</fc>"] $
     magnifier $
       limitWindows 12 $
         mySpacing 8 $
-    ResizableTall 1 (3 / 100) (1 / 2) []
+          ResizableTall 1 (3 / 100) (1 / 2) []
+
 tabs =
-  renamed [Replace "<fc=#b7bdf8><fn=2> \62162 </fn>Tabs</fc>"]
-  $
+  renamed [Replace "<fc=#b7bdf8><fn=2> \62162 </fn>Tabs</fc>"] $
     tabbed shrinkText myTabConfig
   where
     myTabConfig =
@@ -426,6 +457,7 @@ tabs =
           activeTextColor = "#ffffff",
           inactiveTextColor = "#d0d0d0"
         }
+
 ------------------------------------------------------------------------
 -- Scratch Pads
 ------------------------------------------------------------------------
@@ -433,13 +465,15 @@ myScratchPads :: [NamedScratchpad]
 myScratchPads =
   [ NS "discord" "discord" (appName =? "discord") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "spotify" "spotify" (appName =? "spotify") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
-    NS "whatsapp-for-linux" myWhatsapp (appName =? "whatsapp-for-linux") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
+    NS "whatstux" myWhatsapp (appName =? "whatstux") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "telegram" myTelegram (title =? "Telegram") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
     NS "insomnia" myAPITestManager (title =? "Insomnia") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
-    NS "terminal" launchTerminal (title =? "scratchpad") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7)
+    NS "vieb" "vieb" (title =? "Vieb") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7),
+    NS "terminal" launchTerminal (appName =? "float-window") (customFloating $ W.RationalRect 0.15 0.15 0.7 0.7)
   ]
-  where 
-   launchTerminal = myTerminal ++ " -t scratchpad"
+  where
+    launchTerminal = myTerminal ++ " --class float-window"
+
 ------------------------------------------------------------------------
 -- Floats
 ------------------------------------------------------------------------
@@ -452,7 +486,7 @@ myManageHook =
       className =? "dialog" --> doFloat,
       className =? "Downloads" --> doFloat,
       className =? "Save As..." --> doFloat,
-       className =? "Xdg-desktop-portal-gtk" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
+      className =? "Xdg-desktop-portal-gtk" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       className =? "Thunar" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       className =? "Sublime_merge" --> doRectFloat (W.RationalRect 0.15 0.15 0.7 0.7),
       isFullscreen --> doFullFloat,

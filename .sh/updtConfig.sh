@@ -12,10 +12,10 @@ echo -e "$blue                       Updating Config :: $blue                  $
 echo -e "$grn  ----------------------------------------------------------------$rset$red\n"
 #-----------------
 
-cp ~/.sh/.xmobar.hs ~/config/xmobar/.xmobar.hs 
+cp ~/.sh/.xmobar.hs ~/config/xmobar/.xmobar.hs
 cp ~/.config/alacritty/alacritty.yml ~/config/alacritty/alacritty.yml
-cp ~/.sh/.autostart.sh ~/config/autostart/.autostart.sh 
-cp ~/.zshrc ~/config/zsh/.zshrc 
-cp ~/.sh/.picom.conf ~/config/picom/picom.conf
+cp ~/.sh/.autostart.sh ~/config/autostart/.autostart.sh
+cp ~/.zshrc ~/config/zsh/.zshrc
+cp ~/.sh/.picom.conf ~/config/picom/.picom.conf
 cp ~/.xmonad/xmonad.hs ~/config/xmonad/xmonad.hs
 cp -r ~/.sh/* ~/config/.sh/

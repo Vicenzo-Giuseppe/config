@@ -56,10 +56,10 @@ fi
 #-----------------
 if [ -f ~/.sh/.picom.conf ]; then
 echo -e "$blue picom configs detected, backing up and copying new config... $rset"
-  cp  ~/config/picom/picom.conf ~/.sh/.picom.conf
+  cp  ~/config/picom/.picom.conf ~/.sh/.picom.conf
 else
   echo -e "$red Installing zsh configs... $rset"
-  cp ~/config/picom/picom.conf ~/.picom.conf
+  cp ~/config/picom/.picom.conf ~/.picom.conf
 fi
 #-----------------
 if [ -f ~/.config/spotifyd/spotifyd.conf ]; then
@@ -90,7 +90,7 @@ if [ -d ~/.xmonad ]; then
    xmonad --recompile  &
    xmonad --restart    &
    run nitrogen --restore &
-   picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --config $HOME/.sh/.picom.conf & # this is not normal picom 
+   picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --animation-for-transient-window zoom --config $HOME/.sh/.picom.conf & # this is not normal picom
    ckb-next -b &
    run nm-applet &
    run pamac-tray &

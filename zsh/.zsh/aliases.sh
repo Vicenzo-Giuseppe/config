@@ -13,7 +13,7 @@ alias x='et'
 alias pdf='wpspdf'
 alias l='lvim'
 alias icue='ckb-next &!'
-
+alias xmessage='yad --text '
 # Changing "ls" to "exa" 
 alias ls='exa --color=always --icons --group-directories-first '
 alias ll='exa -al --color=always --icons --group-directories-first' # my preferred listing 
@@ -51,9 +51,10 @@ alias xmb='l ~/.xmobar.hs'
 alias c='clear' 
 alias cpv='time rsync -ah --info=progress2'
 alias pk='killall picom'
-alias p='picom -b '
+alias p='picom -b'
+alias pc='picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --animation-for-transient-window zoom --config $HOME/.sh/.picom.conf'
 alias ph='picom -h | grep animation'
-alias ph2='cat ~/.h/.ph'
+alias ph2='cat ~/.sh/ph.sh'
 alias cloudflare='wrangler '
 
 
