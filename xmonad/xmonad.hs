@@ -19,7 +19,7 @@ import System.Exit
 import System.IO (hPutStrLn)
 import XMonad
 import XMonad.Actions.CopyWindow (kill1)
-import XMonad.Actions.CycleWS (WSType (EmptyWS, AnyWS, WSIs),  moveTo, nextWS, shiftTo)
+import XMonad.Actions.CycleWS (WSType (EmptyWS,WSIs), anyWS, moveTo, nextWS, shiftTo)
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.MouseResize
 import qualified XMonad.Actions.Search as S
@@ -54,75 +54,47 @@ import XMonad.Prompt.FuzzyMatch
 import XMonad.Prompt.Input
 import XMonad.Prompt.Shell (shellPrompt)
 import qualified XMonad.StackSet as W
-import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (runInTerm, runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.SpawnOnce
-
-
+import XMonad.Util.NamedScratchpad
 ------------------------------------------------------------------------
 -- Preferences
 ------------------------------------------------------------------------
 windowsKey = mod4Mask
-
 myTerminal = "alacritty"
-
 myBrowser = "/usr/bin/firefox"
-
 myFileManager = "thunar"
-
 myEmail = "mailspring"
-
 myFont = "xft:mononoki Nerd Font:"
-
 myWhatsapp = "whatstux "
-
 myTelegram = "telegram-desktop"
-
 mySpotify = ""
-
 myTorrent = "transmission-gtk"
-
 myVM = "vmware"
-
 myAPITestManager = "insomnia"
-
 myBorderWidth = 0
-
 myFocusFollowsMouse = False
-
 ------------------------------------------------------------------------
 -- Colors
 ------------------------------------------------------------------------
 myXMonadBorderColor = "#E8A2AF"
-
 myXMonadFocusColor = "#643FFF"
-
 myXMobarCurrentWSColor = "#643FFF"
-
 myXMobarActiveWSColor = "#F28FAD"
-
 myXMobarEmptyWSColor = "#00ffd0"
-
 myXMobarWindowNameColor = "#F28FAD"
-
 myXPromptbgColor = "#643FFF"
-
 myXPromptfgColor = "#E8A2AF"
-
 myXPromptbgHLight = "#FFFFFF"
-
 myXPromptfgHLight = "#89DCEB"
-
 myXPromptborderColor = "#535974"
-
 ------------------------------------------------------------------------
 -- Startup Hooks
 ------------------------------------------------------------------------
 myStartupHook = do
   spawnOnce "$HOME/.sh/.autostart.sh"
   setWMName "LG3D"
-
 ------------------------------------------------------------------------
 -- Main Function
 ------------------------------------------------------------------------
@@ -130,7 +102,7 @@ main :: IO ()
 main = do
   xmobar <- spawnPipe "/usr/bin/xmobar ~/.sh/.xmobar.hs"
   xmonad $
-     ewmh $
+    ewmhFullscreen . ewmh $
       def
         { manageHook = myManageHook <+> manageDocks,
           logHook =
@@ -154,9 +126,8 @@ main = do
           terminal = myTerminal,
           borderWidth = myBorderWidth,
           startupHook = myStartupHook,
-          handleEventHook = fullscreenEventHook <+> myHandleEventHook
+          handleEventHook =  myHandleEventHook
           }
-
 ------------------------------------------------------------------------
 -- KeyBindings
 ------------------------------------------------------------------------
@@ -193,7 +164,7 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
           (xK_s, spawn mySpotify),
           (xK_d, spawn myAPITestManager),
           (xK_Escape, io exitSuccess),
-          (xK_Tab, shiftTo Next AnyWS)
+          (xK_Tab, shiftTo Next anyWS)
         ]
       ++ map
         (first $ (,) controlMask) -- Control + <Key>
@@ -233,7 +204,6 @@ myKeys conf@(XConfig {XMonad.modMask = windowsKey}) =
     nonNSP = WSIs (return (\ws -> W.tag ws /= "NSP"))
     nonEmptyNonNSP = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
     runTerminal = myTerminal ++ " --hold -e "
-
 ------------------------------------------------------------------------
 -- MouseBindings
 ------------------------------------------------------------------------
@@ -379,7 +349,7 @@ xPromptKeymap =
           (xK_Delete, deleteString Next),
           (xK_Left, moveCursor Prev),
           (xK_Right, moveCursor Next),
-          (xK_Home, startOfLine),
+          (xK_Home, startOfLine ),
           (xK_End, endOfLine),
           (xK_Down, moveHistory W.focusUp'),
           (xK_Up, moveHistory W.focusDown'),
@@ -418,6 +388,7 @@ grid =
       windowNavigation $
         subLayout [] (smartBorders Simplest) $
           limitWindows 12 $
+
             mySpacing 5 $
               mkToggle (single MIRROR) $
                 Grid (16 / 10)

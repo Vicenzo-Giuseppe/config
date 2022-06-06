@@ -87,8 +87,6 @@ function run {
 }
 
 if [ -d ~/.xmonad ]; then
-   xmonad --recompile  &
-   xmonad --restart    &
    run nitrogen --restore &
    picom -b --animations --animation-window-mass 0.5 --animation-for-open-window fly-in --animation-stiffness 350 --animation-for-transient-window zoom --config $HOME/.sh/.picom.conf & # this is not normal picom
    ckb-next -b &
